@@ -7,6 +7,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def file_size(path):
+    return os.path.getsize(path)
+
 def uploadFolder(client, folder):
     try:
         # Validate that the folder exists
@@ -14,12 +17,25 @@ def uploadFolder(client, folder):
             logger.error(f"Folder '{folder}' does not exist or is not a directory.")
             return
 
-        files = []
         for dirpath, dirnames, filenames in os.walk(folder):
             for file in filenames:
                 local_file = os.path.join(dirpath, file)
                 # Use relative path as S3 key
                 s3_key = os.path.relpath(local_file, folder).replace('\\', '/')
+
+                # Check if the file exists in the S3 bucket and has the same size
+                try:
+                    s3_object = client.head_object(Bucket=bucket_name, Key=s3_key)
+                    if s3_object['ContentLength'] == file_size(local_file):
+                        logger.info(f"Skipping {s3_key} (already exists with the same size)")
+                        continue
+                except client.exceptions.ClientError as e:
+                    # Object does not exist, proceed with the upload
+                    if e.response['Error']['Code'] == '404':
+                        pass
+                    else:
+                        raise e
+
                 logger.info(f"Uploading {s3_key}")
                 client.upload_file(Filename=local_file, Bucket=bucket_name, Key=s3_key)
     except Exception as e:
