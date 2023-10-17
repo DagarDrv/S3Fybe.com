@@ -30,7 +30,7 @@ if __name__ == "__main__":
     access_key = 'XXXXXXXXXXXXXX' # Your Access Key -- Visit https://cockpit.fybe.com/account/security
     secret_key = 'XXXXXXXXXXXXXX' # Your Secret Key -- Visit https://cockpit.fybe.com/account/security
     s3_endpoint = 'https://ap-southeast-1.fybeobjects.com' # To check visit link https://cockpit.fybe.com/storage/object-storage/buckets
-    bucket_name = 'new' # to check - https://cockpit.fybe.com/storage/object-storage/buckets
+    bucket_name = 'EnterBucketName' # to check - https://cockpit.fybe.com/storage/object-storage/buckets
 
     # Initialize the S3 client
     s3 = boto3.client(
